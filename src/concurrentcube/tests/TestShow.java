@@ -1,6 +1,5 @@
 package concurrentcube.tests;
 
-import concurrentcube.Counter;
 import concurrentcube.Cube;
 import org.junit.jupiter.api.Assertions;
 
