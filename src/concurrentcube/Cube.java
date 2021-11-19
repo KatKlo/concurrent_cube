@@ -271,47 +271,56 @@ public class Cube {
         return result;
     }
 
-    public void prettyShow() throws InterruptedException {
+    public String prettyShow() throws InterruptedException {
         accessProtocol(3);
+        if (Thread.interrupted()) {
+            endProtocol(3);
+            throw new InterruptedException();
+        }
 
         Integer[] temp;
 
+        StringBuilder result = new StringBuilder();
+
         for (int i = 0; i < this.size; i++) {
-            System.out.print(" ".repeat(2 * this.size + 2));
+            result.append(" ".repeat(2 * this.size + 2));
             temp = this.sides[0].getRow(i);
 
             for (int j = 0; j < this.size; j++) {
-                System.out.printf("%d ", temp[j]);
+                result.append(temp[j]).append(" ");
             }
 
-            System.out.println();
+            result.append("\n");
         }
-        System.out.println();
+        result.append("\n");
 
         for (int i = 0; i < this.size; i++) {
             for (int cube = 1; cube < 5; cube++) {
                 temp = this.sides[cube].getRow(i);
 
                 for (int j = 0; j < this.size; j++) {
-                    System.out.printf("%d ", temp[j]);
+                    result.append(temp[j]).append(" ");
                 }
 
-                System.out.print(" ".repeat(2));
+                result.append(" ".repeat(2));
             }
-            System.out.println();
+            result.append("\n");
         }
-        System.out.println();
+        result.append("\n");
 
         for (int i = 0; i < this.size; i++) {
-            System.out.print(" ".repeat(2 * this.size + 2));
+            result.append(" ".repeat(2 * this.size + 2));
             temp = this.sides[5].getRow(i);
 
             for (int j = 0; j < this.size; j++) {
-                System.out.printf("%d ", temp[j]);
+                result.append(temp[j]).append(" ");
             }
-            System.out.println();
+            result.append("\n");
         }
+        result.append("\n");
 
         endProtocol(3);
+
+        return result.toString();
     }
 }
