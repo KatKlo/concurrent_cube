@@ -1,11 +1,12 @@
 package concurrentcube;
 
+import concurrentcube.tests.TestRotateConcurrent;
 import concurrentcube.tests.TestRotateSequential;
 import concurrentcube.tests.TestShow;
 import org.junit.jupiter.api.Test;
 
 public class CubeTest {
-    private final int size = 4;
+    private final int size = 5;
 
     @Test
     public void testShowWithoutRotations() {
@@ -14,8 +15,14 @@ public class CubeTest {
     }
 
     @Test
-    public void testRotateWithoutRotations() {
+    public void testSequentialRotations() {
         TestRotateSequential test = new TestRotateSequential();
+        test.test();
+    }
+
+    @Test
+    public void testConcurrentRotations() {
+        TestRotateConcurrent test = new TestRotateConcurrent(size);
         test.test();
     }
 }

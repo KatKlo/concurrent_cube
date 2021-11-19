@@ -7,14 +7,10 @@ public class TestRotateSequential {
     private static final int SIZE = 4;
     private static final int TIMES = 5;
     private final Cube testingCube = new Cube(4,
-            (x, y) -> {
-            },
-            (x, y) -> {
-            },
-            () -> {
-            },
-            () -> {
-            }
+                                              (x, y) -> {},
+                                              (x, y) -> {},
+                                              () -> {},
+                                              () -> {}
     );
 
     String[] EXPECTED = {
@@ -141,7 +137,7 @@ public class TestRotateSequential {
     };
 
     public void test() {
-        System.out.println("Testing rotating and showing cube 4 x 4");
+        System.out.println("Testing rotating and showing cube 4 x 4:");
 
         int testNumber = 0;
         String[] afterRotation = new String[6 * SIZE * TIMES];
