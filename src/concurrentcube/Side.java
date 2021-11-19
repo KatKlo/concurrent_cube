@@ -1,16 +1,13 @@
 package concurrentcube;
 
 public class Side {
-    private final NameOfSide name;
     private final int size;
     private final Integer[][] wall;
 
-    public Side(NameOfSide name, int size) {
-        this.name = name;
+    public Side(int number, int size) {
         this.size = size;
         this.wall = new Integer[size][size];
 
-        int number = name.getNumber();
         for (int row = 0; row < size; row++) {
             for (int column = 0; column < size; column++) {
                 this.wall[row][column] = number;
@@ -19,8 +16,9 @@ public class Side {
     }
 
     public Integer[] getColumn(int layer) {
-        Integer[] result = new Integer[this.size];
+        assert(layer >= 0 && layer < this.size);
 
+        Integer[] result = new Integer[this.size];
         for (int row = 0; row < this.size; row++) {
             result[row] = this.wall[row][layer];
         }
@@ -29,21 +27,28 @@ public class Side {
     }
 
     public Integer[] getRow(int layer) {
-        Integer[] result = new Integer[this.size];
+        assert(layer >= 0 && layer < this.size);
 
-        if (this.size >= 0) System.arraycopy(this.wall[layer], 0, result, 0, this.size);
+        Integer[] result = new Integer[this.size];
+        System.arraycopy(this.wall[layer], 0, result, 0, this.size);
 
         return result;
     }
 
     public void setColumn(int layer, Integer[] newColumn) {
+        assert(layer >= 0 && layer < this.size);
+        assert(newColumn.length == this.size);
+
         for (int row = 0; row < this.size; row++) {
             this.wall[row][layer] = newColumn[row];
         }
     }
 
     public void setRow(int layer, Integer[] newRow) {
-        if (this.size >= 0) System.arraycopy(newRow, 0, this.wall[layer], 0, this.size);
+        assert(layer >= 0 && layer < this.size);
+        assert(newRow.length == this.size);
+
+        System.arraycopy(newRow, 0, this.wall[layer], 0, this.size);
     }
 
     public void rotateWall(boolean clockwise) {
@@ -61,8 +66,9 @@ public class Side {
         }
     }
 
-    public String toString() {
+    public String show() {
         StringBuilder result = new StringBuilder();
+
         for (int row = 0; row < this.size; row++) {
             for (int column = 0; column < this.size; column++) {
                 result.append(this.wall[row][column]);
@@ -70,9 +76,5 @@ public class Side {
         }
 
         return result.toString();
-    }
-
-    public int getNumberOfOppositeSide() {
-        return this.name.getNumberOfOppositeSide();
     }
 }
