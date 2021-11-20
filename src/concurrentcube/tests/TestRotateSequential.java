@@ -37,8 +37,8 @@ public class TestRotateSequential {
             layer = (layer + 1) % 4;
         }
 
-        Assertions.assertArrayEquals(EXPECTED, afterRotation, "- BAD String");
-        System.out.println("+ strings OK");
+        Assertions.assertArrayEquals(EXPECTED, afterRotation, "  - BAD String");
+        System.out.println("  + strings OK");
     }
 
     private static final String[] EXPECTED = {

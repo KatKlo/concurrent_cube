@@ -1,5 +1,6 @@
 package concurrentcube;
 
+import concurrentcube.tests.TestInterruptions;
 import concurrentcube.tests.TestRotateConcurrent;
 import concurrentcube.tests.TestRotateSequential;
 import concurrentcube.tests.TestShow;
@@ -23,6 +24,12 @@ public class CubeTest {
     @Test
     public void testConcurrentRotations() {
         TestRotateConcurrent test = new TestRotateConcurrent(size);
+        test.test();
+    }
+
+    @Test
+    public void testShowInterruption() {
+        TestInterruptions test = new TestInterruptions(size);
         test.test();
     }
 }

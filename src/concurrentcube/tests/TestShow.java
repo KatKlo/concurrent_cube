@@ -8,7 +8,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 
 public class TestShow {
@@ -50,20 +50,17 @@ public class TestShow {
     public void test() {
         System.out.println("Testing showing cube " + size + "x" + size + " without rotations:");
 
-        List<Thread> threads = new ArrayList<>();
-        List<String> results = new ArrayList<>();
-
+        ArrayList<Thread> threads = new ArrayList<>();
+        ConcurrentLinkedQueue<String> results = new ConcurrentLinkedQueue<>();
         Instant start = Instant.now();
 
         for (int i = 0; i < THREADS_COUNT; i++) {
             Thread t = new Thread(() -> {
-                try {
-                    String a = testingCube.show();
-                    results.add(a);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
+                final String[] a = new String[1];
+                Assertions.assertDoesNotThrow(() -> a[0] = testingCube.show());
+                results.add(a[0]);
             });
+
             threads.add(t);
             t.start();
         }
@@ -72,17 +69,18 @@ public class TestShow {
             Assertions.assertDoesNotThrow((Executable) thread::join);
         }
 
+
         Duration duration = Duration.between(start, Instant.now());
 
         for (int i = 0; i < THREADS_COUNT; i++) {
-            Assertions.assertEquals(EXPECTED, results.get(i), "- strings BAD");
+            Assertions.assertEquals(EXPECTED, results.poll(), "  - strings BAD");
         }
-        System.out.println("+ strings OK");
+        System.out.println("  + strings OK");
 
-        Assertions.assertEquals(THREADS_COUNT * 11, showCounter.get(), "- before/after BAD");
-        System.out.println("+ before/after OK");
+        Assertions.assertEquals(THREADS_COUNT * 11, showCounter.get(), "  - before/after BAD");
+        System.out.println("  + before/after OK");
 
-        Assertions.assertTrue(duration.compareTo(Duration.of(2, ChronoUnit.SECONDS)) <= 0, "- duration BAD");
-        System.out.println("+ duration OK");
+        Assertions.assertTrue(duration.compareTo(Duration.of(2, ChronoUnit.SECONDS)) <= 0, "  - duration BAD");
+        System.out.println("  + duration OK");
     }
 }

@@ -39,26 +39,17 @@ public class TestRotateConcurrent {
         );
     }
 
-    private class Rotator implements Runnable {
-        @Override
-        public void run() {
-            for (int i = 0; i < ROTATE_COUNT; i++) {
-                try {
-                    cubeConcurrent.rotate(RANDOM.nextInt(6), RANDOM.nextInt(size));
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
     public void test() {
         System.out.println("Testing concurrent rotating cube " + size + "x" + size + ":");
 
         ArrayList<Thread> threads = new ArrayList<>();
 
         for (int i = 0; i < THREADS_COUNT; i++) {
-            Thread t = new Thread(new Rotator());
+            Thread t = new Thread(() -> {
+                for (int j = 0; j < ROTATE_COUNT; j++) {
+                    Assertions.assertDoesNotThrow(() -> this.cubeConcurrent.rotate(RANDOM.nextInt(6), RANDOM.nextInt(this.size)));
+                }
+            });
             threads.add(t);
             t.start();
         }
@@ -76,11 +67,11 @@ public class TestRotateConcurrent {
         String concurrent = Assertions.assertDoesNotThrow(cubeConcurrent::show);
         String sequential = Assertions.assertDoesNotThrow(cubeSequential::show);
 
-        Assertions.assertEquals(sequential, concurrent, "- strings BAD");
-        System.out.println("+ strings OK");
+        Assertions.assertEquals(sequential, concurrent, "  - strings BAD");
+        System.out.println("  + strings OK");
 
-        Assertions.assertEquals(THREADS_COUNT * ROTATE_COUNT * 11, rotateCounter.get(), "- before/after BAD");
-        System.out.println("+ before/after OK");
+        Assertions.assertEquals(THREADS_COUNT * ROTATE_COUNT * 11, rotateCounter.get(), "  - before/after BAD");
+        System.out.println("  + before/after OK");
 
     }
 
