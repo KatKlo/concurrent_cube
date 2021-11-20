@@ -54,6 +54,7 @@ public class TestInterruptions {
         testShowInterrupted();
         testRotationInterruptedWaitingOnGroup();
         testRotationInterruptedWaitingOnLayer();
+        testArrangementAfterRotationInterrupted();
     }
 
     private void testShowInterrupted() {
@@ -133,7 +134,7 @@ public class TestInterruptions {
         setUp();
 
         Thread rotateThread1 = new Thread(() -> Assertions.assertDoesNotThrow(() -> cubeConcurrent.rotate(1, 0)));
-        Thread rotateThread2 = new Thread(() -> Assertions.assertThrows(InterruptedException.class,() -> cubeConcurrent.rotate(1, 0)));
+        Thread rotateThread2 = new Thread(() -> Assertions.assertThrows(InterruptedException.class,() -> cubeConcurrent.rotate(3, this.size - 1)));
         Thread rotateThread3 = new Thread(() -> Assertions.assertDoesNotThrow(() -> cubeConcurrent.rotate(1, 0)));
         Thread rotateThread4 = new Thread(() -> Assertions.assertDoesNotThrow(() -> cubeConcurrent.rotate(2, RANDOM.nextInt(size))));
 
@@ -160,6 +161,47 @@ public class TestInterruptions {
         System.out.println("    + before/after show OK");
 
         Assertions.assertEquals(3 * 11, rotateCounter.get(), "    - before/after rotation BAD");
+        System.out.println("    + before/after rotation OK");
+
+    }
+
+    private void testArrangementAfterRotationInterrupted() {
+        System.out.println("  Cube stays the same after one rotate interrupted:");
+        setUp();
+
+        StringBuilder expected = new StringBuilder();
+        final int squaresForSide = size * size;
+
+        for (int i = 0; i < 6; i++) {
+            expected.append(Integer.toString(i).repeat(squaresForSide));
+        }
+
+        Thread showThread = new Thread(() -> Assertions.assertDoesNotThrow(() -> cubeConcurrent.show()));
+        Thread rotateThread = new Thread(() -> Assertions.assertThrows(InterruptedException.class,() -> cubeConcurrent.rotate(RANDOM.nextInt(6), RANDOM.nextInt(size))));
+
+        showThread.start();
+
+        try {
+            Thread.sleep(TEST_SLEEP_TIME);
+        } catch (InterruptedException e) {
+            return;
+        }
+
+        rotateThread.start();
+        rotateThread.interrupt();
+
+        Assertions.assertDoesNotThrow((Executable) showThread::join);
+        Assertions.assertDoesNotThrow((Executable) rotateThread::join);
+        System.out.println("    + throwing exceptions OK");
+
+        String result = Assertions.assertDoesNotThrow(() -> cubeConcurrent.show());
+        Assertions.assertEquals(expected.toString(), result, "    - strings BAD");
+        System.out.println("    + strings OK");
+
+        Assertions.assertEquals(2 * 11, showCounter.get(), "    - before/after show BAD");
+        System.out.println("    + before/after show OK");
+
+        Assertions.assertEquals(0, rotateCounter.get(), "    - before/after rotation BAD");
         System.out.println("    + before/after rotation OK");
 
     }
