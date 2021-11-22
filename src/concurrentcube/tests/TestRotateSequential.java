@@ -7,14 +7,14 @@ public class TestRotateSequential {
     private static final int SIZE = 4;
     private static final int TIMES = 40;
 
-    private final Cube testingCube = new Cube(4,
+    private final Cube testingCube = new Cube(SIZE,
                                               (x, y) -> {},
                                               (x, y) -> {},
                                               () -> {},
                                               () -> {}
     );
 
-    public void test() {
+    public void testRotateAndShowSequential() {
         System.out.println("Testing rotating and showing cube 4 x 4:");
 
         int testNumber = 0;
@@ -32,9 +32,9 @@ public class TestRotateSequential {
                     afterRotation[finalTestNumber] = testingCube.show();
                 });
 
-                layer = (layer + 1) % 4;
+                layer = (layer + 1) % SIZE;
             }
-            layer = (layer + 1) % 4;
+            layer = (layer + 1) % SIZE;
         }
 
         Assertions.assertArrayEquals(EXPECTED, afterRotation, "  - BAD String");

@@ -1,35 +1,53 @@
 package concurrentcube;
 
-import concurrentcube.tests.TestInterruptions;
-import concurrentcube.tests.TestRotateConcurrent;
-import concurrentcube.tests.TestRotateSequential;
-import concurrentcube.tests.TestShow;
+import concurrentcube.tests.*;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class CubeTest {
-    private final int size = 5;
+    private final static int SIZE = 5;
+    private static TestShow showT;
+    private static TestRotateSequential rotateSequentialT;
+    private static TestConcurrency concurrencyT;
+    private static TestRotateConcurrent rotateConcurrentT;
+    private static TestInterruptions interruptionsT;
+
+    @BeforeAll
+    public static void setUp() {
+        showT = new TestShow(SIZE);
+        rotateSequentialT = new TestRotateSequential();
+        concurrencyT = new TestConcurrency();
+        rotateConcurrentT = new TestRotateConcurrent(SIZE);
+        interruptionsT = new TestInterruptions(SIZE);
+    }
 
     @Test
     public void testShowWithoutRotations() {
-        TestShow test = new TestShow(size);
-        test.test();
+        showT.testShowWithoutRotations();
     }
 
     @Test
     public void testSequentialRotations() {
-        TestRotateSequential test = new TestRotateSequential();
-        test.test();
+        rotateSequentialT.testRotateAndShowSequential();
+    }
+
+    @Test
+    public void testShowConcurrency() {
+        concurrencyT.testShowConcurrency();
+    }
+
+    @Test
+    public void testRotateConcurrency() {
+        concurrencyT.testRotateConcurrency();
     }
 
     @Test
     public void testConcurrentRotations() {
-        TestRotateConcurrent test = new TestRotateConcurrent(size);
-        test.test();
+        rotateConcurrentT.testConcurrentRotate();
     }
 
     @Test
-    public void testShowInterruption() {
-        TestInterruptions test = new TestInterruptions(size);
-        test.test();
+    public void testInterruptions() {
+        interruptionsT.test();
     }
 }

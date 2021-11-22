@@ -39,7 +39,7 @@ public class TestRotateConcurrent {
         );
     }
 
-    public void test() {
+    public void testConcurrentRotate() {
         System.out.println("Testing concurrent rotating cube " + size + "x" + size + ":");
 
         ArrayList<Thread> threads = new ArrayList<>();
