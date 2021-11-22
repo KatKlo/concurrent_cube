@@ -9,6 +9,7 @@ public class NotConcurrentCube {
 
     private final int size;
     private final Side[] sides = new Side[WALLS_COUNT];
+    private final static int[] oppositeSites = {5, 3, 4, 1, 2, 0};
 
     private final BiConsumer<Integer, Integer> beforeRotation;
     private final BiConsumer<Integer, Integer> afterRotation;
@@ -102,25 +103,6 @@ public class NotConcurrentCube {
         }
     }
 
-    private int getNumberOfOppositeSide(int side) {
-        switch (side) {
-            case 0:
-                return 5;
-            case 1:
-                return 3;
-            case 2:
-                return 4;
-            case 3:
-                return 1;
-            case 4:
-                return 2;
-            case 5:
-                return 0;
-            default:
-                throw new IllegalStateException("There's no side like " + side);
-        }
-    }
-
     public void rotate(int side, int layer) {
         assert(side >= 0 && side < WALLS_COUNT);
         assert(layer >= 0 && layer < this.size);
@@ -151,7 +133,7 @@ public class NotConcurrentCube {
         }
 
         if (layer == 0) this.sides[side].rotateWall(true);
-        if (layer == this.size - 1) this.sides[getNumberOfOppositeSide(side)].rotateWall(false);
+        if (layer == this.size - 1) this.sides[oppositeSites[side]].rotateWall(false);
 
         this.afterRotation.accept(side, layer);
     }
