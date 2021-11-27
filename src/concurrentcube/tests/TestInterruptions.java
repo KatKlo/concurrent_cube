@@ -49,124 +49,50 @@ public class TestInterruptions {
         this.size = size;
     }
 
-    public void test() {
-        System.out.println("Testing interruptions handling in " + size + "x" + size + " cube:");
-        testShowInterrupted();
-        testRotationInterruptedWaitingOnGroup();
-        testRotationInterruptedWaitingOnLayer();
-        testArrangementAfterRotationInterrupted();
-    }
-
-    private void testShowInterrupted() {
-        System.out.println("  Show interrupted:");
+    public void testShowInterrupted() {
+        System.out.println("Testing handling 'show interrupted' in " + size + "x" + size + " cube:");
         setUp();
 
-        Thread rotateThread1 = new Thread(() -> Assertions.assertDoesNotThrow(() -> cubeConcurrent.rotate(RANDOM.nextInt(6), RANDOM.nextInt(size))));
-        Thread rotateThread2 = new Thread(() -> Assertions.assertDoesNotThrow(() -> cubeConcurrent.rotate(RANDOM.nextInt(6), RANDOM.nextInt(size))));
-        Thread showThread1 = new Thread(() -> Assertions.assertThrows(InterruptedException.class, () -> cubeConcurrent.show()));
-        Thread showThread2 = new Thread(() -> Assertions.assertDoesNotThrow(() -> cubeConcurrent.show()));
+        Thread[] threadsOrder = {
+                new Thread(() -> Assertions.assertDoesNotThrow(() -> cubeConcurrent.rotate(RANDOM.nextInt(6), RANDOM.nextInt(size)))),
+                new Thread(() -> Assertions.assertThrows(InterruptedException.class, () -> cubeConcurrent.show())),
+                new Thread(() -> Assertions.assertDoesNotThrow(() -> cubeConcurrent.show())),
+                new Thread(() -> Assertions.assertDoesNotThrow(() -> cubeConcurrent.rotate(RANDOM.nextInt(6), RANDOM.nextInt(size))))
+        };
 
-        rotateThread1.start();
-
-        try {
-            Thread.sleep(TEST_SLEEP_TIME);
-        } catch (InterruptedException e) {
-            return;
-        }
-
-        showThread1.start();
-        showThread1.interrupt();
-        showThread2.start();
-        rotateThread2.start();
-
-        Assertions.assertDoesNotThrow((Executable) rotateThread1::join);
-        Assertions.assertDoesNotThrow((Executable) showThread1::join);
-        Assertions.assertDoesNotThrow((Executable) showThread2::join);
-        Assertions.assertDoesNotThrow((Executable) rotateThread2::join);
-        System.out.println("    + throwing exceptions OK");
-
-        Assertions.assertEquals(11, showCounter.get(), "    - before/after show BAD");
-        System.out.println("    + before/after show OK");
-
-        Assertions.assertEquals(2 * 11, rotateCounter.get(), "    - before/after rotation BAD");
-        System.out.println("    + before/after rotation OK");
-
+        test4Threads(threadsOrder, 11, 2 * 11);
     }
 
-    private void testRotationInterruptedWaitingOnGroup() {
-        System.out.println("  One rotate interrupted while waiting on group:");
+    public void testRotationInterruptedWaitingOnGroup() {
+        System.out.println("Testing handling 'one rotate interrupted while waiting on group' in " + size + "x" + size + " cube:");
         setUp();
 
-        Thread showThread = new Thread(() -> Assertions.assertDoesNotThrow(() -> cubeConcurrent.show()));
-        Thread rotateThread1 = new Thread(() -> Assertions.assertThrows(InterruptedException.class, () -> cubeConcurrent.rotate(1, RANDOM.nextInt(size))));
-        Thread rotateThread2 = new Thread(() -> Assertions.assertDoesNotThrow(() -> cubeConcurrent.rotate(1, RANDOM.nextInt(size))));
-        Thread rotateThread3 = new Thread(() -> Assertions.assertDoesNotThrow(() -> cubeConcurrent.rotate(2, RANDOM.nextInt(size))));
+        Thread[] threadsOrder = {
+                new Thread(() -> Assertions.assertDoesNotThrow(() -> cubeConcurrent.show())),
+                new Thread(() -> Assertions.assertThrows(InterruptedException.class, () -> cubeConcurrent.rotate(1, RANDOM.nextInt(size)))),
+                new Thread(() -> Assertions.assertDoesNotThrow(() -> cubeConcurrent.rotate(1, RANDOM.nextInt(size)))),
+                new Thread(() -> Assertions.assertDoesNotThrow(() -> cubeConcurrent.rotate(2, RANDOM.nextInt(size))))
+        };
 
-        showThread.start();
-
-        try {
-            Thread.sleep(TEST_SLEEP_TIME);
-        } catch (InterruptedException e) {
-            return;
-        }
-
-        rotateThread1.start();
-        rotateThread1.interrupt();
-        rotateThread2.start();
-        rotateThread3.start();
-
-        Assertions.assertDoesNotThrow((Executable) showThread::join);
-        Assertions.assertDoesNotThrow((Executable) rotateThread1::join);
-        Assertions.assertDoesNotThrow((Executable) rotateThread2::join);
-        Assertions.assertDoesNotThrow((Executable) rotateThread3::join);
-        System.out.println("    + throwing exceptions OK");
-
-        Assertions.assertEquals(11, showCounter.get(), "    - before/after show BAD");
-        System.out.println("    + before/after show OK");
-
-        Assertions.assertEquals(2 * 11, rotateCounter.get(), "    - before/after rotation BAD");
-        System.out.println("    + before/after rotation OK");
-
+        test4Threads(threadsOrder, 11, 2 * 11);
     }
 
-    private void testRotationInterruptedWaitingOnLayer() {
-        System.out.println("  One rotate interrupted while waiting on layer:");
+    public void testRotationInterruptedWaitingOnLayer() {
+        System.out.println("Testing handling 'one rotate interrupted while waiting on layer' in " + size + "x" + size + " cube:");
         setUp();
 
-        Thread rotateThread1 = new Thread(() -> Assertions.assertDoesNotThrow(() -> cubeConcurrent.rotate(1, 0)));
-        Thread rotateThread2 = new Thread(() -> Assertions.assertThrows(InterruptedException.class,() -> cubeConcurrent.rotate(3, this.size - 1)));
-        Thread rotateThread3 = new Thread(() -> Assertions.assertDoesNotThrow(() -> cubeConcurrent.rotate(1, 0)));
-        Thread rotateThread4 = new Thread(() -> Assertions.assertDoesNotThrow(() -> cubeConcurrent.rotate(2, RANDOM.nextInt(size))));
+        Thread[] threadsOrder = {
+                new Thread(() -> Assertions.assertDoesNotThrow(() -> cubeConcurrent.rotate(1, 0))),
+                new Thread(() -> Assertions.assertThrows(InterruptedException.class,() -> cubeConcurrent.rotate(3, this.size - 1))),
+                new Thread(() -> Assertions.assertDoesNotThrow(() -> cubeConcurrent.rotate(1, 0))),
+                new Thread(() -> Assertions.assertDoesNotThrow(() -> cubeConcurrent.rotate(2, RANDOM.nextInt(size))))
+        };
 
-        rotateThread1.start();
-
-        try {
-            Thread.sleep(TEST_SLEEP_TIME);
-        } catch (InterruptedException e) {
-            return;
-        }
-
-        rotateThread2.start();
-        rotateThread2.interrupt();
-        rotateThread3.start();
-        rotateThread4.start();
-
-        Assertions.assertDoesNotThrow((Executable) rotateThread1::join);
-        Assertions.assertDoesNotThrow((Executable) rotateThread2::join);
-        Assertions.assertDoesNotThrow((Executable) rotateThread3::join);
-        Assertions.assertDoesNotThrow((Executable) rotateThread4::join);
-        System.out.println("    + throwing exceptions OK");
-
-        Assertions.assertEquals(0, showCounter.get(), "    - before/after show BAD");
-        System.out.println("    + before/after show OK");
-
-        Assertions.assertEquals(3 * 11, rotateCounter.get(), "    - before/after rotation BAD");
-        System.out.println("    + before/after rotation OK");
-
+        test4Threads(threadsOrder, 0, 3 * 11);
     }
 
-    private void testArrangementAfterRotationInterrupted() {
-        System.out.println("  Cube stays the same after one rotate interrupted:");
+    public void testArrangementAfterRotationInterrupted() {
+        System.out.println("Testing if cube stays the same after one rotate interrupted in " + size + "x" + size + " cube:");
         setUp();
 
         StringBuilder expected = new StringBuilder();
@@ -179,30 +105,53 @@ public class TestInterruptions {
         Thread showThread = new Thread(() -> Assertions.assertDoesNotThrow(() -> cubeConcurrent.show()));
         Thread rotateThread = new Thread(() -> Assertions.assertThrows(InterruptedException.class,() -> cubeConcurrent.rotate(RANDOM.nextInt(6), RANDOM.nextInt(size))));
 
-        showThread.start();
-
-        try {
-            Thread.sleep(TEST_SLEEP_TIME);
-        } catch (InterruptedException e) {
-            return;
-        }
-
-        rotateThread.start();
+        startWithDelay(showThread);
+        startWithDelay(rotateThread);
         rotateThread.interrupt();
 
         Assertions.assertDoesNotThrow((Executable) showThread::join);
         Assertions.assertDoesNotThrow((Executable) rotateThread::join);
-        System.out.println("    + throwing exceptions OK");
+        System.out.println("  + throwing exceptions OK");
 
         String result = Assertions.assertDoesNotThrow(() -> cubeConcurrent.show());
-        Assertions.assertEquals(expected.toString(), result, "    - strings BAD");
-        System.out.println("    + strings OK");
+        Assertions.assertEquals(expected.toString(), result, "  - strings BAD");
+        System.out.println("  + strings OK");
 
-        Assertions.assertEquals(2 * 11, showCounter.get(), "    - before/after show BAD");
-        System.out.println("    + before/after show OK");
+        Assertions.assertEquals(2 * 11, showCounter.get(), "  - before/after show BAD");
+        System.out.println("  + before/after show OK");
 
-        Assertions.assertEquals(0, rotateCounter.get(), "    - before/after rotation BAD");
-        System.out.println("    + before/after rotation OK");
+        Assertions.assertEquals(0, rotateCounter.get(), "  - before/after rotation BAD");
+        System.out.println("  + before/after rotation OK");
+    }
 
+    private void delay() {
+        try {
+            Thread.sleep(TEST_SLEEP_TIME);
+        } catch (InterruptedException ignored) {}
+    }
+
+    private void startWithDelay(Thread t) {
+        t.start();
+        delay();
+    }
+
+    private void test4Threads(Thread[] threads, int showC, int rotateC) {
+        startWithDelay(threads[0]);
+        startWithDelay(threads[1]);
+        threads[1].interrupt();
+        delay();
+        startWithDelay(threads[2]);
+        threads[3].start();
+
+        for (int i = 0; i < 4; i++) {
+            Assertions.assertDoesNotThrow((Executable) threads[i]::join);
+        }
+        System.out.println("  + throwing exceptions OK");
+
+        Assertions.assertEquals(showC, showCounter.get(), "  - before/after show BAD");
+        System.out.println("  + before/after show OK");
+
+        Assertions.assertEquals(rotateC, rotateCounter.get(), "  - before/after rotation BAD");
+        System.out.println("  + before/after rotation OK");
     }
 }

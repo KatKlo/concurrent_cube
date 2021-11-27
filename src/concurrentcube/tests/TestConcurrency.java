@@ -72,6 +72,13 @@ public class TestConcurrency {
         System.out.println("  + duration OK");
     }
 
+    public void testRotateConcurrency() {
+        System.out.println("Testing rotate concurrency");
+        rotateConcurrency(0, 5);
+        rotateConcurrency(1, 3);
+        rotateConcurrency(2, 4);
+    }
+
     private void rotateConcurrency(int side, int opposite) {
         System.out.println("  rotate side " + side + " and " + opposite + " concurrency");
 
@@ -102,12 +109,5 @@ public class TestConcurrency {
 
         Assertions.assertTrue(duration.compareTo(Duration.of(2, ChronoUnit.SECONDS)) <= 0, "- duration BAD");
         System.out.println("    + duration OK");
-    }
-
-    public void testRotateConcurrency() {
-        System.out.println("Testing rotate concurrency");
-        rotateConcurrency(0, 5);
-        rotateConcurrency(1, 3);
-        rotateConcurrency(2, 4);
     }
 }

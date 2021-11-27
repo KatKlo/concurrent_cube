@@ -47,7 +47,22 @@ public class CubeTest {
     }
 
     @Test
-    public void testInterruptions() {
-        interruptionsT.test();
+    public void testInterruptOnShow() {
+        interruptionsT.testShowInterrupted();
+    }
+
+    @Test
+    public void testInterruptOnRotationWaitingOnGroup() {
+        interruptionsT.testRotationInterruptedWaitingOnGroup();
+    }
+
+    @Test
+    public void testInterruptOnRotationWaitingOnLayer() {
+        interruptionsT.testRotationInterruptedWaitingOnLayer();
+    }
+
+    @Test
+    public void testArrangementAfterRotationInterrupted() {
+        interruptionsT.testArrangementAfterRotationInterrupted();
     }
 }
