@@ -1,6 +1,8 @@
 package concurrentcube.tests;
 
 import concurrentcube.Cube;
+import concurrentcube.tests.TestUtils.Counter;
+import concurrentcube.tests.TestUtils.Pair;
 import org.junit.jupiter.api.Assertions;
 
 import java.util.ArrayList;
@@ -73,15 +75,5 @@ public class TestRotateConcurrent {
         Assertions.assertEquals(THREADS_COUNT * ROTATE_COUNT * 11, rotateCounter.get(), "  - before/after BAD");
         System.out.println("  + before/after OK");
 
-    }
-
-    private static class Pair {
-        public final int first;
-        public final int second;
-
-        public Pair(int first, int second) {
-            this.first = first;
-            this.second = second;
-        }
     }
 }

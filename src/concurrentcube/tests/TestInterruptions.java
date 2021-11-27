@@ -1,6 +1,7 @@
 package concurrentcube.tests;
 
 import concurrentcube.Cube;
+import concurrentcube.tests.TestUtils.Counter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
 
@@ -14,8 +15,8 @@ public class TestInterruptions {
     private Counter rotateCounter;
     private Counter showCounter;
     private Counter interruptedCounter;
-    private static final int CUBE_SLEEP_TIME = 50;
-    private static final int TEST_SLEEP_TIME = 5;
+    private static final int CUBE_SLEEP_TIME = 100;
+    private static final int TEST_SLEEP_TIME = 20;
 
 
     private void setUp() {
@@ -122,6 +123,9 @@ public class TestInterruptions {
 
         Assertions.assertEquals(0, rotateCounter.get(), "  - before/after rotation BAD");
         System.out.println("  + before/after rotation OK");
+
+        Assertions.assertEquals(0, interruptedCounter.get(), "  - interruptions in sleep BAD");
+        System.out.println("  + interruptions in sleep OK");
     }
 
     private void delay() {
@@ -153,5 +157,8 @@ public class TestInterruptions {
 
         Assertions.assertEquals(rotateC, rotateCounter.get(), "  - before/after rotation BAD");
         System.out.println("  + before/after rotation OK");
+
+        Assertions.assertEquals(0, interruptedCounter.get(), "  - interruptions in sleep BAD");
+        System.out.println("  + interruptions in sleep OK");
     }
 }

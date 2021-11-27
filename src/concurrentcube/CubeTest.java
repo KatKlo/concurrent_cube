@@ -33,13 +33,13 @@ public class CubeTest {
     }
 
     @Test
-    @Timeout(2)
+    @Timeout(1)
     public void testShowConcurrency() {
         concurrencyT.testShowConcurrency();
     }
 
     @Test
-    @Timeout(4)
+    @Timeout(1)
     public void testRotateConcurrency() {
         concurrencyT.testRotateConcurrency();
     }

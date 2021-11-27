@@ -1,6 +1,7 @@
 package concurrentcube.tests;
 
 import concurrentcube.Cube;
+import concurrentcube.tests.TestUtils.Counter;
 import org.junit.jupiter.api.Assertions;
 
 public class TestShow {
