@@ -1,5 +1,8 @@
 package concurrentcube;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 public class Side {
     private final int size;
     private final Integer[][] wall;
@@ -35,20 +38,38 @@ public class Side {
         return result;
     }
 
-    public void setColumn(int layer, Integer[] newColumn) {
+    public void setColumn(int layer, Integer[] newColumn, boolean inReverse) {
         assert(layer >= 0 && layer < this.size);
         assert(newColumn.length == this.size);
+
+        if (inReverse) Collections.reverse(Arrays.asList(newColumn));
 
         for (int row = 0; row < this.size; row++) {
             this.wall[row][layer] = newColumn[row];
         }
     }
 
-    public void setRow(int layer, Integer[] newRow) {
+    public void setRow(int layer, Integer[] newRow, boolean inReverse) {
         assert(layer >= 0 && layer < this.size);
         assert(newRow.length == this.size);
 
+        if (inReverse) Collections.reverse(Arrays.asList(newRow));
+
         System.arraycopy(newRow, 0, this.wall[layer], 0, this.size);
+    }
+
+    public Integer[] replaceColumn(int layer, Integer[] newColumn, boolean inReverse) {
+        Integer[] oldColumn = getColumn(layer);
+        setColumn(layer, newColumn, inReverse);
+
+        return oldColumn;
+    }
+
+    public Integer[] replaceRow(int layer, Integer[] newRow, boolean inReverse) {
+        Integer[] oldRow = getRow(layer);
+        setRow(layer, newRow, inReverse);
+
+        return oldRow;
     }
 
     public void rotateWall(boolean clockwise) {

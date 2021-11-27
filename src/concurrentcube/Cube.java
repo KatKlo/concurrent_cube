@@ -115,6 +115,9 @@ public class Cube {
     }
 
     public void rotate(int side, int layer) throws InterruptedException {
+        assert (side >= 0 && side < 6);
+        assert (layer >= 0 && layer < this.size);
+
         accessProtocolForRotate(side, layer);
 
         if (Thread.interrupted()) {

@@ -1,7 +1,5 @@
 package concurrentcube;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.function.BiConsumer;
 
 public class NotConcurrentCube {
@@ -28,105 +26,30 @@ public class NotConcurrentCube {
         }
     }
 
-    private void rotateFor05(int side, int line) {
-        assert(side == 0 || side == 5);
-        assert(line >= 0 && line < this.size);
-
-        int[] toMove;
-        Integer[][] temp = new Integer[4][this.size];
-
-        if (side == 0) toMove = new int[]{4, 3, 2, 1};
-        else toMove = new int[]{1, 2, 3, 4};
-
-        for (int i = 0; i < 4; i++) {
-            temp[i] = this.sides[toMove[i]].getRow(line);
-        }
-
-        for (int i = 0; i < 4; i++) {
-            int j = i > 0 ? i - 1 : 3;
-            this.sides[toMove[i]].setRow(line, temp[j]);
-        }
-    }
-
-    private void rotateFor13(int side, int column) {
-        assert(side == 1 || side == 3);
-        assert(column >= 0 && column < this.size);
-
-        int[] toMove;
-        Integer[][] temp = new Integer[4][this.size];
-
-        if (side == 1) toMove = new int[]{0, 2, 5};
-        else toMove = new int[]{5, 2, 0};
-
-        for (int i = 0; i < 3; i++) {
-            temp[i] = this.sides[toMove[i]].getColumn(column);
-        }
-        temp[3] = this.sides[4].getColumn(this.size - 1 - column); // REVERSE!
-
-        Collections.reverse(Arrays.asList(temp[3]));
-        Collections.reverse(Arrays.asList(temp[2]));
-
-        for (int i = 0; i < 3; i++) {
-            int j = i > 0 ? i - 1 : 3;
-            this.sides[toMove[i]].setColumn(column, temp[j]);
-        }
-        this.sides[4].setColumn(this.size - 1 - column, temp[2]);
-    }
-
-    private void rotateFor24(int side, int layer) {
-        assert(side == 2 || side == 4);
-        assert(layer >= 0 && layer < this.size);
-
-        Integer[][] temp = new Integer[4][this.size];
-
-        temp[0] = this.sides[0].getRow(this.size - 1 - layer);
-        temp[1] = this.sides[3].getColumn(layer);
-        temp[2] = this.sides[5].getRow(layer);
-        temp[3] = this.sides[1].getColumn(this.size - 1 - layer);
-
-        if (side == 2) {
-            Collections.reverse(Arrays.asList(temp[1]));
-            Collections.reverse(Arrays.asList(temp[3]));
-
-            this.sides[0].setRow(this.size - 1 - layer, temp[3]);
-            this.sides[3].setColumn(layer, temp[0]);
-            this.sides[5].setRow(layer, temp[1]);
-            this.sides[1].setColumn(this.size - 1 - layer, temp[2]);
-        } else {
-            Collections.reverse(Arrays.asList(temp[0]));
-            Collections.reverse(Arrays.asList(temp[2]));
-
-            this.sides[0].setRow(this.size - 1 - layer, temp[1]);
-            this.sides[3].setColumn(layer, temp[2]);
-            this.sides[5].setRow(layer, temp[3]);
-            this.sides[1].setColumn(this.size - 1 - layer, temp[0]);
-        }
-    }
-
     public void rotate(int side, int layer) {
-        assert(side >= 0 && side < WALLS_COUNT);
-        assert(layer >= 0 && layer < this.size);
+        assert (side >= 0 && side < WALLS_COUNT);
+        assert (layer >= 0 && layer < this.size);
 
         this.beforeRotation.accept(side, layer);
 
         switch (side) {
             case 0:
-                rotateFor05(0, layer);
+                rotateYAxis(layer, true);
                 break;
             case 1:
-                rotateFor13(1, layer);
+                rotateXAxis(layer, true);
                 break;
             case 2:
-                rotateFor24(2, layer);
+                rotateZAxis(layer, true);
                 break;
             case 3:
-                rotateFor13(3, this.size - 1 - layer);
+                rotateXAxis(oppositeLayer(layer), false);
                 break;
             case 4:
-                rotateFor24(4, this.size - 1 - layer);
+                rotateZAxis(oppositeLayer(layer), false);
                 break;
             case 5:
-                rotateFor05(5, this.size - 1 - layer);
+                rotateYAxis(oppositeLayer(layer), false);
                 break;
             default:
                 throw new IllegalStateException("There's no side like " + side);
@@ -150,5 +73,55 @@ public class NotConcurrentCube {
         this.afterShowing.run();
 
         return result.toString();
+    }
+
+    private int oppositeLayer(int layer) {
+        return this.size - 1 - layer;
+    }
+
+    private void rotateYAxis(int line, boolean clockwise) {
+        assert (line >= 0 && line < this.size);
+
+        int[] toMove;
+        if (clockwise) toMove = new int[]{4, 3, 2, 1};
+        else toMove = new int[]{1, 2, 3, 4};
+
+        Integer[] temp = this.sides[toMove[0]].getRow(line);
+        temp = this.sides[toMove[1]].replaceRow(line, temp, false);
+        temp = this.sides[toMove[2]].replaceRow(line, temp, false);
+        temp = this.sides[toMove[3]].replaceRow(line, temp, false);
+        this.sides[toMove[0]].setRow(line, temp, false);
+    }
+
+    private void rotateXAxis(int column, boolean clockwise) {
+        assert (column >= 0 && column < this.size);
+
+        int[] toMove;
+        if (clockwise) toMove = new int[]{0, 2, 5, 4};
+        else toMove = new int[]{5, 2, 0, 4};
+
+        Integer[] temp = this.sides[toMove[0]].getColumn(column);
+        temp = this.sides[toMove[1]].replaceColumn(column, temp, false);
+        temp = this.sides[toMove[2]].replaceColumn(column, temp, false);
+        temp = this.sides[toMove[3]].replaceColumn(oppositeLayer(column), temp, true);
+        this.sides[toMove[0]].setColumn(column, temp, true);
+    }
+
+    private void rotateZAxis(int layer, boolean clockwise) {
+        assert (layer >= 0 && layer < this.size);
+
+        Integer[] temp = this.sides[0].getRow(oppositeLayer(layer));
+
+        if (clockwise) {
+            temp = this.sides[3].replaceColumn(layer, temp, false);
+            temp = this.sides[5].replaceRow(layer, temp, true);
+            temp = this.sides[1].replaceColumn(oppositeLayer(layer), temp, false);
+            this.sides[0].setRow(oppositeLayer(layer), temp, true);
+        } else {
+            temp = this.sides[1].replaceColumn(oppositeLayer(layer), temp, true);
+            temp = this.sides[5].replaceRow(layer, temp, false);
+            temp = this.sides[3].replaceColumn(layer, temp, true);
+            this.sides[0].setRow(oppositeLayer(layer), temp, false);
+        }
     }
 }
