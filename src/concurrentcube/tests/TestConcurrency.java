@@ -15,7 +15,7 @@ public class TestConcurrency {
     private Counter showCounter;
     private Counter rotateCounter;
     private Counter interruptedCounter;
-    private static final int CUBE_SLEEP_TIME = 300;
+    private static final int CUBE_SLEEP_TIME = 200;
 
     private static final int SIZE = 4;
     private static final int THREADS_COUNT = 4;

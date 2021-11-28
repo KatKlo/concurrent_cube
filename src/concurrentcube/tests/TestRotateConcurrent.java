@@ -17,7 +17,7 @@ public class TestRotateConcurrent {
     private final Cube cubeSequential;
     private final Counter rotateCounter = new Counter();
     private static final int ROTATE_COUNT = 1000;
-    private static final int THREADS_COUNT = 10;
+    private static final int THREADS_COUNT = 50;
     private final ConcurrentLinkedQueue<Pair> rotationsQueue = new ConcurrentLinkedQueue<>();
 
     public TestRotateConcurrent(int size) {

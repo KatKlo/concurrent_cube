@@ -42,7 +42,7 @@ public class CubeTest {
      * Poprawność współbieżnych rotate
      */
     @Test
-    @Timeout(1)
+    @Timeout(5)
     public void testConcurrentRotations() {
         rotateConcurrentT.testConcurrentRotate();
     }

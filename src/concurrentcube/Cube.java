@@ -22,6 +22,7 @@ public class Cube {
     Semaphore[] layersSem;
 
     Semaphore releasedGroupMutex = new Semaphore(1, true);
+    Semaphore additionalProtection = new Semaphore(1, true);
     int releasedGroup = -1;
 
     public Cube(int size,
@@ -47,20 +48,20 @@ public class Cube {
     }
 
     private void accessProtocol(int groupNumber) throws InterruptedException {
+        additionalProtection.acquire();
         mutex.acquire();
 
         if (calculateWaitingAndWorking(groupNumber) > 0) {
             howManyWait[groupNumber]++;
             mutex.release();
+            additionalProtection.release();
 
             try {
                 waitingSem[groupNumber].acquire();
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
                 releasedGroupMutex.acquireUninterruptibly();
 
                 if (releasedGroup == groupNumber) {
-                    releasedGroupMutex.release();
                     waitingSem[groupNumber].acquireUninterruptibly();
                 }
                 else {
@@ -68,27 +69,35 @@ public class Cube {
                     howManyWait[groupNumber]--;
                     mutex.release();
                     releasedGroupMutex.release();
-
                     throw new InterruptedException();
                 }
-            }
 
+                Thread.currentThread().interrupt();
+                releasedGroupMutex.release();
+            }
             howManyWait[groupNumber]--;
         }
 
         howManyWorks[groupNumber]++;
 
+        mutex.release();
+        releasedGroupMutex.acquireUninterruptibly();
+        mutex.acquireUninterruptibly();
+
         if (howManyWait[groupNumber] > 0) {
             waitingSem[groupNumber].release();
         } else {
-            mutex.release();
-            releasedGroupMutex.acquireUninterruptibly();
             releasedGroup = -1;
-            releasedGroupMutex.release();
+            mutex.release();
+            additionalProtection.release();
         }
 
-        if (Thread.currentThread().isInterrupted())
+        releasedGroupMutex.release();
+
+        if (Thread.currentThread().isInterrupted()) {
             endProtocol(groupNumber);
+            throw new InterruptedException();
+        }
 
     }
 
@@ -103,6 +112,7 @@ public class Cube {
     }
 
     private void endProtocol(int groupNumber) {
+        additionalProtection.acquireUninterruptibly();
         releasedGroupMutex.acquireUninterruptibly();
         mutex.acquireUninterruptibly();
 
@@ -120,6 +130,7 @@ public class Cube {
             }
         } else {
             mutex.release();
+            additionalProtection.release();
         }
 
         releasedGroupMutex.release();
