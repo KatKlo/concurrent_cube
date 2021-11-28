@@ -56,18 +56,21 @@ public class Cube {
             try {
                 waitingSem[groupNumber].acquire();
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 releasedGroupMutex.acquireUninterruptibly();
 
-                if (releasedGroup == groupNumber)
+                if (releasedGroup == groupNumber) {
+                    releasedGroupMutex.release();
                     waitingSem[groupNumber].acquireUninterruptibly();
-                else
+                }
+                else {
+                    releasedGroupMutex.release();
                     mutex.acquireUninterruptibly();
+                    howManyWait[groupNumber]--;
+                    mutex.release();
 
-                howManyWait[groupNumber]--;
-                mutex.release();
-                releasedGroupMutex.release();
-
-                throw new InterruptedException();
+                    throw new InterruptedException();
+                }
             }
 
             howManyWait[groupNumber]--;
@@ -83,6 +86,9 @@ public class Cube {
             releasedGroup = -1;
             releasedGroupMutex.release();
         }
+
+        if (Thread.currentThread().isInterrupted())
+            endProtocol(groupNumber);
 
     }
 
