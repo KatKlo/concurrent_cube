@@ -64,10 +64,10 @@ public class Cube {
                     waitingSem[groupNumber].acquireUninterruptibly();
                 }
                 else {
-                    releasedGroupMutex.release();
                     mutex.acquireUninterruptibly();
                     howManyWait[groupNumber]--;
                     mutex.release();
+                    releasedGroupMutex.release();
 
                     throw new InterruptedException();
                 }
