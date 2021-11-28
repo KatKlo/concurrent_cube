@@ -24,9 +24,8 @@ public class TestShow {
         StringBuilder expected = new StringBuilder();
         final int squaresForSide = size * size;
 
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 6; i++)
             expected.append(Integer.toString(i).repeat(squaresForSide));
-        }
 
         this.EXPECTED = expected.toString();
     }

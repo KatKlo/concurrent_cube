@@ -5,6 +5,10 @@ import concurrentcube.tests.TestUtils.Counter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Random;
 
 
@@ -16,7 +20,7 @@ public class TestInterruptions {
     private Counter showCounter;
     private Counter interruptedCounter;
     private static final int CUBE_SLEEP_TIME = 100;
-    private static final int TEST_SLEEP_TIME = 20;
+    private static final int TEST_SLEEP_TIME = 10;
 
 
     private void setUp() {
@@ -99,9 +103,8 @@ public class TestInterruptions {
         StringBuilder expected = new StringBuilder();
         final int squaresForSide = size * size;
 
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 6; i++)
             expected.append(Integer.toString(i).repeat(squaresForSide));
-        }
 
         Thread showThread = new Thread(() -> Assertions.assertDoesNotThrow(() -> cubeConcurrent.show()));
         Thread rotateThread = new Thread(() -> Assertions.assertThrows(InterruptedException.class,() -> cubeConcurrent.rotate(RANDOM.nextInt(6), RANDOM.nextInt(size))));
@@ -118,14 +121,48 @@ public class TestInterruptions {
         Assertions.assertEquals(expected.toString(), result, "  - strings BAD");
         System.out.println("  + strings OK");
 
-        Assertions.assertEquals(2 * 11, showCounter.get(), "  - before/after show BAD");
-        System.out.println("  + before/after show OK");
+        testCounters(2 * 11, 0);
+    }
 
-        Assertions.assertEquals(0, rotateCounter.get(), "  - before/after rotation BAD");
-        System.out.println("  + before/after rotation OK");
+    public void testTimeInterrupted() {
+        System.out.println("Testing if thread waiting is interrupted immediately in " + size + "x" + size + " cube:");
+        setUp();
+        final int THREADS_COUNT = 3;
 
-        Assertions.assertEquals(0, interruptedCounter.get(), "  - interruptions in sleep BAD");
-        System.out.println("  + interruptions in sleep OK");
+        ArrayList<Thread> threads = new ArrayList<>();
+        for (int i = 0; i < THREADS_COUNT * 2; i++) {
+            Thread t = new Thread(() -> Assertions.assertDoesNotThrow(() -> cubeConcurrent.rotate(0, 0)));
+            threads.add(t);
+        }
+
+        Thread[] interruptedThreads = {
+                new Thread(() -> Assertions.assertThrows(InterruptedException.class, () -> cubeConcurrent.rotate(0, 0))),
+                new Thread(() -> Assertions.assertThrows(InterruptedException.class, () -> cubeConcurrent.rotate(1, 0))),
+                new Thread(() -> Assertions.assertThrows(InterruptedException.class, () -> cubeConcurrent.show()))
+        };
+
+        ArrayList<Duration> times = new ArrayList<>();
+        for (int i = 0; i < THREADS_COUNT; i++) {
+            startWithDelay(threads.get(2 * i));
+            startWithDelay(threads.get(2 * i + 1));
+
+            Instant start = Instant.now();
+
+            startWithDelay(interruptedThreads[i]);
+            interruptedThreads[i].interrupt();
+            Assertions.assertDoesNotThrow((Executable) interruptedThreads[i]::join);
+
+            times.add(Duration.between(start, Instant.now()));
+        }
+
+        for (Thread t : threads)
+            Assertions.assertDoesNotThrow((Executable) t::join);
+
+        for (Duration time : times)
+            Assertions.assertTrue(time.compareTo(Duration.of(CUBE_SLEEP_TIME, ChronoUnit.MILLIS)) <= 0, "- duration BAD");
+        System.out.println("  + durations OK");
+
+        testCounters(0, 2 * THREADS_COUNT * 11);
     }
 
     private void delay() {
@@ -147,11 +184,14 @@ public class TestInterruptions {
         startWithDelay(threads[2]);
         threads[3].start();
 
-        for (int i = 0; i < 4; i++) {
-            Assertions.assertDoesNotThrow((Executable) threads[i]::join);
-        }
+        for (Thread thread : threads)
+            Assertions.assertDoesNotThrow((Executable) thread::join);
         System.out.println("  + throwing exceptions OK");
 
+        testCounters(showC, rotateC);
+    }
+
+    private void testCounters(int showC, int rotateC) {
         Assertions.assertEquals(showC, showCounter.get(), "  - before/after show BAD");
         System.out.println("  + before/after show OK");
 

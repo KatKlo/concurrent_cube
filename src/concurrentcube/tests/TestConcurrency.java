@@ -61,9 +61,8 @@ public class TestConcurrency {
             t.start();
         }
 
-        for (Thread thread : threads) {
+        for (Thread thread : threads)
             Assertions.assertDoesNotThrow((Executable) thread::join);
-        }
 
 
         Duration duration = Duration.between(start, Instant.now());
@@ -104,9 +103,8 @@ public class TestConcurrency {
             t2.start();
         }
 
-        for (Thread thread : threads) {
+        for (Thread thread : threads)
             Assertions.assertDoesNotThrow((Executable) thread::join);
-        }
 
         Duration duration = Duration.between(start, Instant.now());
 

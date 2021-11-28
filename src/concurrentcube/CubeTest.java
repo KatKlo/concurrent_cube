@@ -33,6 +33,7 @@ public class CubeTest {
     }
 
     @Test
+    @Timeout(1)
     public void testConcurrentRotations() {
         rotateConcurrentT.testConcurrentRotate();
     }
@@ -71,5 +72,11 @@ public class CubeTest {
     @Timeout(1)
     public void testArrangementAfterRotationInterrupted() {
         interruptionsT.testArrangementAfterRotationInterrupted();
+    }
+
+    @Test
+    @Timeout(1)
+    public void testInterruptionsTime() {
+        interruptionsT.testTimeInterrupted();
     }
 }
