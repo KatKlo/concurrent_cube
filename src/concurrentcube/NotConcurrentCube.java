@@ -21,9 +21,8 @@ public class NotConcurrentCube {
         this.beforeShowing = beforeShowing;
         this.afterShowing = afterShowing;
 
-        for (int sideNumber = 0; sideNumber < WALLS_COUNT; sideNumber++) {
+        for (int sideNumber = 0; sideNumber < WALLS_COUNT; sideNumber++)
             this.sides[sideNumber] = new Side(sideNumber, size);
-        }
     }
 
     public void rotate(int side, int layer) {
@@ -55,8 +54,10 @@ public class NotConcurrentCube {
                 throw new IllegalStateException("There's no side like " + side);
         }
 
-        if (layer == 0) this.sides[side].rotateWall(true);
-        if (layer == this.size - 1) this.sides[oppositeSites[side]].rotateWall(false);
+        if (layer == 0)
+            this.sides[side].rotateWall(true);
+        if (layer == this.size - 1)
+            this.sides[oppositeSites[side]].rotateWall(false);
 
         this.afterRotation.accept(side, layer);
     }
@@ -66,9 +67,8 @@ public class NotConcurrentCube {
 
         StringBuilder result = new StringBuilder();
 
-        for (int sideNumber = 0; sideNumber < WALLS_COUNT; sideNumber++) {
+        for (int sideNumber = 0; sideNumber < WALLS_COUNT; sideNumber++)
             result.append(this.sides[sideNumber].show());
-        }
 
         this.afterShowing.run();
 

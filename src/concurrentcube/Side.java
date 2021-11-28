@@ -11,20 +11,18 @@ public class Side {
         this.size = size;
         this.wall = new Integer[size][size];
 
-        for (int row = 0; row < size; row++) {
-            for (int column = 0; column < size; column++) {
+        for (int row = 0; row < size; row++)
+            for (int column = 0; column < size; column++)
                 this.wall[row][column] = number;
-            }
-        }
     }
 
     public Integer[] getColumn(int layer) {
         assert(layer >= 0 && layer < this.size);
 
         Integer[] result = new Integer[this.size];
-        for (int row = 0; row < this.size; row++) {
+
+        for (int row = 0; row < this.size; row++)
             result[row] = this.wall[row][layer];
-        }
 
         return result;
     }
@@ -44,9 +42,8 @@ public class Side {
 
         if (inReverse) Collections.reverse(Arrays.asList(newColumn));
 
-        for (int row = 0; row < this.size; row++) {
+        for (int row = 0; row < this.size; row++)
             this.wall[row][layer] = newColumn[row];
-        }
     }
 
     public void setRow(int layer, Integer[] newRow, boolean inReverse) {
@@ -73,28 +70,25 @@ public class Side {
     }
 
     public void rotateWall(boolean clockwise) {
-        Integer[][] newSide = new Integer[this.size][this.size];
+        Integer[][] newWall = new Integer[this.size][this.size];
 
         for (int line = 0; line < this.size; line++) {
             for (int column = 0; column < this.size; column++) {
-                if (clockwise) newSide[column][this.size - 1 - line] = this.wall[line][column];
-                else newSide[this.size - 1 - column][line] = this.wall[line][column];
+                if (clockwise) newWall[column][this.size - 1 - line] = this.wall[line][column];
+                else newWall[this.size - 1 - column][line] = this.wall[line][column];
             }
         }
 
-        for (int line = 0; line < this.size; line++) {
-            System.arraycopy(newSide[line], 0, this.wall[line], 0, this.size);
-        }
+        for (int line = 0; line < this.size; line++)
+            System.arraycopy(newWall[line], 0, this.wall[line], 0, this.size);
     }
 
     public String show() {
         StringBuilder result = new StringBuilder();
 
-        for (int row = 0; row < this.size; row++) {
-            for (int column = 0; column < this.size; column++) {
+        for (int row = 0; row < this.size; row++)
+            for (int column = 0; column < this.size; column++)
                 result.append(this.wall[row][column]);
-            }
-        }
 
         return result.toString();
     }

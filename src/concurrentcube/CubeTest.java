@@ -33,6 +33,11 @@ public class CubeTest {
     }
 
     @Test
+    public void testConcurrentRotations() {
+        rotateConcurrentT.testConcurrentRotate();
+    }
+
+    @Test
     @Timeout(1)
     public void testShowConcurrency() {
         concurrencyT.testShowConcurrency();
@@ -42,12 +47,6 @@ public class CubeTest {
     @Timeout(1)
     public void testRotateConcurrency() {
         concurrencyT.testRotateConcurrency();
-    }
-
-    @Test
-    @Timeout(1)
-    public void testConcurrentRotations() {
-        rotateConcurrentT.testConcurrentRotate();
     }
 
     @Test
