@@ -92,27 +92,31 @@ public class Cube {
 
     }
 
+    private int calculateWaiting() {
+        int result = 0;
+
+        for (int i = 0; i < 4; i++) {
+            result += howManyWait[i];
+        }
+
+        return result;
+    }
+
     private void endProtocol(int groupNumber) {
         releasedGroupMutex.acquireUninterruptibly();
         mutex.acquireUninterruptibly();
 
         howManyWorks[groupNumber]--;
 
-        int next1 = (groupNumber + 1) % GROUPS_COUNT;
-        int next2 = (groupNumber + 2) % GROUPS_COUNT;
-        int next3 = (groupNumber + 3) % GROUPS_COUNT;
+        if (howManyWorks[groupNumber] == 0 && calculateWaiting() > 0) {
+            for (int i = 1; i <= GROUPS_COUNT; i++) {
+                int temp = (groupNumber + i) % GROUPS_COUNT;
 
-        if ((howManyWorks[groupNumber] == 0)
-                && (howManyWait[next1] + howManyWait[next2] + howManyWait[next3] > 0)) {
-            if (howManyWait[next1] > 0) {
-                releasedGroup = next1;
-                waitingSem[next1].release();
-            } else if (howManyWait[next2] > 0) {
-                releasedGroup = next2;
-                waitingSem[next2].release();
-            } else { // iluCzeka[next3] > 0
-                releasedGroup = next3;
-                waitingSem[next3].release();
+                if (howManyWait[temp] > 0) {
+                    releasedGroup = temp;
+                    waitingSem[temp].release();
+                    break;
+                }
             }
         } else {
             mutex.release();
